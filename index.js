@@ -88,7 +88,7 @@ app.post('/login', async function (req, res) {
     }
 })
 
-app.get("/card/:id",async function (req, res) {
+app.get("/card/:id",authenticate,async function (req, res) {
     try {
          let connection = await mongoClient.connect(URL);
         let db = connection.db("RECbots");
