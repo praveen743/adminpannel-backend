@@ -1,4 +1,4 @@
-const express = require("express");
+ const express = require("express");
 const app = express();
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
@@ -88,15 +88,28 @@ app.post('/login', async function (req, res) {
     }
 })
 
-app.get("/card/:id",authenticate,async function (req, res) {
+// app.get("/card/:id",authenticate,async function (req, res) {
+//     try {
+//          let connection = await mongoClient.connect(URL);
+//         let db = connection.db("RECbots");
+//         console.log(req.params.id)
+
+//         let taskdata = await db.collection("registeration").find({email:req.params.id}).toArray();
+//       console.log(taskdata)
+//         await connection.close();
+//         res.json(taskdata);
+//     } catch (error) {
+//         console.log(error)
+//     }
+
+// });
+
+app.get("/user",authenticate,async function (req, res) {
     try {
          let connection = await mongoClient.connect(URL);
         let db = connection.db("RECbots");
-        console.log(req.params.id)
-
-        let taskdata = await db.collection("registeration").find({email:req.params.id}).toArray();
-      console.log(taskdata)
-        await connection.close();
+        let taskdata = await db.collection("registeration").find({}).toArray();
+         await connection.close();
         res.json(taskdata);
     } catch (error) {
         console.log(error)
@@ -104,13 +117,55 @@ app.get("/card/:id",authenticate,async function (req, res) {
 
 });
 
-app.put("/upgrade", async function (req, res) {
+app.get("/apps",authenticate,async function (req, res) {
+    try {
+         let connection = await mongoClient.connect(URL);
+        let db = connection.db("RECbots");
+        // console.log(req.params.id)
+         let taskdata = await db.collection("apps").find({downloads:{$gt: 100000}}).toArray();
+    //   console.log(taskdata)
+        await connection.close();
+        res.json(taskdata);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+app.get("/active",authenticate,async function (req, res) {
+    try {
+         let connection = await mongoClient.connect(URL);
+        let db = connection.db("RECbots");
+          let taskdata = await db.collection("registeration").find({status:"active"}).toArray();
+         await connection.close();
+        res.json(taskdata);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+
+// app.put("/upgrade", async function (req, res) {
+//     try {
+//         let connection = await mongoClient.connect(URL);
+//         let db = connection.db("RECbots");
+//         // let objId = mongodb.ObjectId(req.params.id)
+// //    console.log(req.body.upplan)
+//         var updatedarr = await db.collection("registeration").updateOne({ email: req.body.email }, { $set:{plan:req.body.upplan} })
+//         console.log(updatedarr);
+//         await connection.close();
+//         res.json({ message: "Plan Updated" })
+//     } catch (error) {
+//         res.json(error);
+//         console.log(error)
+//     }
+// });
+ 
+app.put("/loginactive", async function (req, res) {
     try {
         let connection = await mongoClient.connect(URL);
         let db = connection.db("RECbots");
-        // let objId = mongodb.ObjectId(req.params.id)
-//    console.log(req.body.upplan)
-        var updatedarr = await db.collection("registeration").updateOne({ email: req.body.email }, { $set:{plan:req.body.upplan} })
+        console.log(req.body.email)
+     var updatedarr = await db.collection("registeration").updateOne({ email: req.body.email }, { $set:{status:"active"} })
         console.log(updatedarr);
         await connection.close();
         res.json({ message: "Plan Updated" })
@@ -119,6 +174,21 @@ app.put("/upgrade", async function (req, res) {
         console.log(error)
     }
 });
- 
+
+app.put("/logout",authenticate, async function (req, res) {
+    try {
+        let connection = await mongoClient.connect(URL);
+        let db = connection.db("RECbots");
+        console.log(req.body.email)
+     var updatedarr = await db.collection("registeration").updateOne({ email: req.body.email }, { $set:{status:"non active"} })
+        console.log(updatedarr);
+        await connection.close();
+        res.json({ message: "logged out" })
+    } catch (error) {
+        res.json(error);
+        console.log(error)
+    }
+});
+
 
 app.listen(3001,console.log('app is running'))
